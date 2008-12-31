@@ -125,7 +125,7 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
     return $return;
   }
 
-  private function _gettags(&$thlp) {
+  function _gettags(&$thlp) {
     $data = array();
     foreach ($thlp->topic_idx as $k => $v) {
         if (!is_array($v) || empty($v) || (!trim($v[0]))) continue;
@@ -141,7 +141,7 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
    * @param $tagns namespace to search.
    * @return array list of tag names.
    */
-  private function _getpages($tagns='wiki:tags') {
+  function _getpages($tagns='wiki:tags') {
     global $conf;
     require_once(DOKU_INC.'inc/search.php');
     $data = array();
@@ -150,11 +150,11 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
     return($data); 
   }
 
-  private function clipstring($s, $len=22) {
+  function clipstring($s, $len=22) {
     return substr($s,0,$len).((strlen($s)>$len)?'..':'');
   }
 
-  private function escapeJSstring ($o) {
+  function escapeJSstring ($o) {
     return ( # TODO: use JSON ?!
       str_replace("\n", '\\n', 
         str_replace("\r", '', 
@@ -170,7 +170,7 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
    * @param $options array 
    * @return string XHTML form.
    */
-  private function _format_tags($alltags, $options) {
+  function _format_tags($alltags, $options) {
     $rv='';
     if (!is_array($alltags)) return $rv;
 
