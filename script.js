@@ -3,7 +3,7 @@ function tagentry_clicktag(tagname, cbox) {
 }
 function tagentry_settag(tagname, on) {
   var oldtext = document.getElementById('wiki__text').value;
-  var tagstart = oldtext.indexOf("{{tag>");
+  var tagstart = oldtext.toLowerCase().indexOf("{{tag>");
 
   if (tagstart >= 0) {
     var tagend = oldtext.substr(tagstart).indexOf("}}");
@@ -16,7 +16,7 @@ function tagentry_settag(tagname, on) {
     var s=tagstart;
     var l=tagend;
     var f=-1;
-    while ((f=oldtext.substr(s,l).indexOf(tagname)) >= 0) {
+    while ((f=oldtext.toLowerCase().substr(s,l).indexOf(tagname.toLowerCase())) >= 0) {
       var cs = oldtext.substr(s+f-1,1); // char before
       if (cs != ' ' && cs != '>' ) { s+=f+len; l-=f+len; continue; }
       var ce = oldtext.substr(s+f+len-1,1); // char after
