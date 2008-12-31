@@ -12,7 +12,6 @@ if(!defined('DOKU_INC')) die();
 if(!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN',DOKU_INC.'lib/plugins/');
 require_once(DOKU_PLUGIN.'action.php');
 
-
  
 /**
  * callback function for dokuwiki search()
@@ -144,13 +143,12 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
   }
 
 
-
   private function _format_tags($alltags, $options) {
     $rv='';
     if (!is_array($alltags)) return $rv;
 
     $rv.='<div><label>Tags:</label><br/>';
-    $rv.='<div style="overflow:auto; height:4em; margin-bottom:.5em;">';
+    $rv.='<div style="overflow:auto; max-height:4em; margin-bottom:.5em;">';
     if ($options['tagboxtable']) $rv.='<table><tr>';
     $i=0;
     sort($alltags);
@@ -162,7 +160,7 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
       }
       $i++;
       if ($options['tagboxtable']) $rv.='<td>';
-      $rv.='<input type="checkbox" id="c_'.$t.'" value="1" name="'.$t.'" onclick="clicktag(\''.$this->escapeJSstring($t).'\');" /> '.$this->clipstring($t).'&nbsp;';
+      $rv.='<input type="checkbox" id="plugin__tagentry_cb'.$t.'" value="1" name="'.$t.'" onclick="tagentry_clicktag(\''.$this->escapeJSstring($t).'\', this);" /> '.$this->clipstring($t).'&nbsp;';
       $rv.="\n";
       if ($options['tagboxtable']) $rv.='</td>';
       # TODO: allow to limit number of tags ?

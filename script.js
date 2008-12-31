@@ -1,4 +1,7 @@
-function clicktag(tagname) {
+function tagentry_clicktag(tagname, cbox) {
+  tagentry_settag(tagname,cbox.checked);
+}
+function tagentry_settag(tagname, on) {
   var oldtext = document.getElementById('wiki__text').value;
   var tagstart = oldtext.indexOf("{{tag>");
 
@@ -31,14 +34,14 @@ function clicktag(tagname) {
       return;
     }
 
-    if (document.getElementById('c_'+tagname).checked) { // insert tag 
+    if (on) { // insert tag 
       var split = tagstart+tagend;
       var ws ="";
-      if (tagend != 6) ws=" "; // empty "{{tag>"
+      if (tagend != 6) ws=" "; // empty "{{tag>" - TODO remove it!?
       oldtext = oldtext.substr(0,split)+ws+tagname+oldtext.substr(split);
     }
   } else {
-    if (document.getElementById('c_'+tagname).checked) {
+    if (on) { // insert tag 
       oldtext+='\n{{tag>'+tagname+'}}';
     }
   }
