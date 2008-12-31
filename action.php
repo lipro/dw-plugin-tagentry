@@ -57,16 +57,26 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
       if($param['editform'] && !$event->data['writable']) return;
     }
 
-    # TODO: (optionally) get list of all tags (not only pages)
-    $alltags=$this->_gettags();
+    $tagns=$this->getConf('namespace');
+    if ($thlp=&plugin_load('helper', 'tag')) {
+      if ($this->getConf('tagsrc') == 'Pagenames in tag NS') {
+        $tagnst=$thlp->getConf('namespace');
+        if(!empty($tagnst)) $tagns=$tagnst;
+      }
+    }
+
+    if ($this->getConf('tagsrc') == 'All tags' && $thlp) {
+      $alltags=$this->_gettags(&$thlp);
+    } else {
+      $alltags=$this->_getpages($tagns);
+    }
 
     $out  = '';
     $out .= '<div id="plugin__tagentry_wrapper">';
-    # TODO use $this->getConf('..') and add config.
     $options=array(
-      'tagboxtable' => false, # or true
-      'limit' => 0,           # <1: unlimited
-      'blacklist' => false,  # or array of tag-names
+      'tagboxtable' => $this->getConf('table'),
+    # 'limit' => intval($this->getConf('limit')),
+      'blacklist' => split(' ',$this->getConf('blacklist')),
       'class' => '',
     );
     $out .= $this->_format_tags($alltags,$options);
@@ -115,20 +125,26 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
     return $return;
   }
 
+  private function _gettags(&$thlp) {
+    $data = array();
+    foreach ($thlp->topic_idx as $k => $v) {
+        if (!is_array($v) || empty($v) || (!trim($v[0]))) continue;
+        $data[$k] = count($v);
+    }
+    arsort($data);
+    return(array_keys($data)); 
+  }
+
   /**
-   * list all pages in the /tag/ namespace.
+   * list all pages in the namespace.
    *
-   * @param $tagns opt. default namespace if the tag-plugin config is not set.
+   * @param $tagns namespace to search.
    * @return array list of tag names.
    */
-  private function _gettags($tagns='wiki:tags') {
-    require_once(DOKU_INC.'inc/search.php');
+  private function _getpages($tagns='wiki:tags') {
     global $conf;
+    require_once(DOKU_INC.'inc/search.php');
     $data = array();
-    if ($my =& plugin_load('helper', 'tag')) {
-      $tagnst=$my->getConf('namespace');
-      if(!empty($tagnst)) $tagns=$tagnst;
-    }
     search($data, $conf['datadir'], array($this, '_tagentry_search_tagpages'),
            array('ns' => $tagns));
     return($data); 
@@ -161,7 +177,7 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
     $rv.='<div class="'.$options['class'].'">';
     $rv.=' <div><label>Tags:</label></div>';
     # TODO style here -> style.css ?!
-    $rv.=' <div style="overflow:auto; max-height:4em; margin-bottom:.25em;">';
+    $rv.=' <div style="overflow:auto; max-height:5em; margin-bottom:.25em;">';
     if ($options['tagboxtable']) $rv.='<table><tr>';
     $i=0;
     natcasesort($alltags);
