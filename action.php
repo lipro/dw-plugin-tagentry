@@ -47,7 +47,7 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
   }
 
   /**
-   * Create the additional fields for the edit form
+   * Create the additional fields for the edit form.
    */
   function handle_editform_output(&$event, $param){
     if(!$param['oldhook']){
@@ -57,12 +57,19 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
       if($param['editform'] && !$event->data['writable']) return;
     }
 
+    # TODO: (optionally) get list of all tags (not only pages)
     $alltags=$this->_gettags();
 
     $out  = '';
     $out .= '<div id="plugin__tagentry_wrapper">';
-    # TODO use config for layout/design, class
-    $out .= $this->_format_tags($alltags,array('tagboxtable' => 0));
+    # TODO use $this->getConf('..') and add config.
+    $options=array(
+      'tagboxtable' => false, # or true
+      'limit' => 0,           # <1: unlimited
+      'blacklist' => false,  # or array of tag-names
+      'class' => '',
+    );
+    $out .= $this->_format_tags($alltags,$options);
     $out .= '</div>';
 
     if($param['oldhook']){
@@ -108,33 +115,29 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
     return $return;
   }
 
-
   /**
-   * 
+   * list all pages in the /tag/ namespace.
+   *
+   * @param $tagns opt. default namespace if the tag-plugin config is not set.
+   * @return array list of tag names.
    */
-  private function _gettags() {
+  private function _gettags($tagns='wiki:tags') {
     require_once(DOKU_INC.'inc/search.php');
     global $conf;
     $data = array();
-    $tagns = $conf['plugin']['tag']['namespace']; # XXX wrong rg
-    if (empty($tagns)) {
-      #$tagns = 'wiki:tags'; 
-      $tagns = 'tag'; 
+    if ($my =& plugin_load('helper', 'tag')) {
+      $tagnst=$my->getConf('namespace');
+      if(!empty($tagnst)) $tagns=$tagnst;
     }
-    search($data,$conf['datadir'],array($this, '_tagentry_search_tagpages'),array('ns' => $tagns));
+    search($data, $conf['datadir'], array($this, '_tagentry_search_tagpages'),
+           array('ns' => $tagns));
     return($data); 
   }
 
-  /**
-   * 
-   */
   private function clipstring($s, $len=22) {
     return substr($s,0,$len).((strlen($s)>$len)?'..':'');
   }
 
-  /**
-   * 
-   */
   private function escapeJSstring ($o) {
     return ( # TODO: use JSON ?!
       str_replace("\n", '\\n', 
@@ -144,21 +147,27 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
         $o)))));
   }
 
-  /**
-   * 
+  /** 
+   * render and return the tag-select box.
+   *
+   * @param $alltags array of tags to display.
+   * @param $options array 
+   * @return string XHTML form.
    */
   private function _format_tags($alltags, $options) {
     $rv='';
     if (!is_array($alltags)) return $rv;
 
-    $rv.='<div><label>Tags:</label><br/>';
-    # TODO XXX only style here -> style.css ?!
+    $rv.='<div class="'.$options['class'].'">';
+    $rv.=' <div><label>Tags:</label></div>';
+    # TODO style here -> style.css ?!
     $rv.=' <div style="overflow:auto; max-height:4em; margin-bottom:.25em;">';
     if ($options['tagboxtable']) $rv.='<table><tr>';
     $i=0;
-    sort($alltags);
+    natcasesort($alltags);
     foreach ($alltags as $t)  {
-      if ($t=="bookmark") continue;
+      if (is_array($options['blacklist']) 
+          && in_array($t, $options['blacklist'])) continue;
       if ($i%5==0 && $i!=0) { 
         if ($options['tagboxtable']) $rv.="</tr>\n<tr>";
         else $rv.="<br/>\n";
@@ -168,8 +177,10 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
       $rv.='<input type="checkbox" id="plugin__tagentry_cb'.$t.'" value="1" name="'.$t.'" onclick="tagentry_clicktag(\''.$this->escapeJSstring($t).'\', this);" /> '.$this->clipstring($t).'&nbsp;';
       $rv.="\n";
       if ($options['tagboxtable']) $rv.='</td>';
-      # TODO: allow to limit number of tags ?
-      #if ($i>100) { $rv.="&nbsp;..."; break; }
+      if ($options['limit']>0 && $i>$options['limit']) { 
+        $rv.="&nbsp;...";
+         break;
+       }
     }
     if ($options['tagboxtable']) $rv.='</tr></table>';
     $rv.=' </div>';
