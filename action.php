@@ -219,9 +219,8 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
     if (count($alltags)<1) return $rv;
 
     $rv.='<div class="'.$options['class'].'">';
-    $rv.=' <div><label>Tags:</label></div>';
-    # TODO style here -> style.css ?!
-    $rv.=' <div style="overflow:auto; max-height:5em; margin-bottom:.25em;">';
+    $rv.=' <div><label>'.$this->getLang('assign').'</label></div>';
+    $rv.=' <div class="taglist">';
     if ($options['tagboxtable']) $rv.='<table><tr>';
     $i=0;
     natcasesort($alltags);

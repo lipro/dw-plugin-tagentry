@@ -1,0 +1,5 @@
+#plugin__tagentry_wrapper div.taglist {
+  overflow:auto; 
+  max-height:5em; 
+  margin-bottom:.25em;
+}
