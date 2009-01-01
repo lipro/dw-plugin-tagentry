@@ -222,6 +222,7 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
     $rv.=' <div><label>'.$this->getLang('assign').'</label></div>';
     $rv.=' <div class="taglist">';
     if ($options['tagboxtable']) $rv.='<table><tr>';
+    else $rv.='  <div>';
     $i=0;
     natcasesort($alltags);
     foreach ($alltags as $t)  {
@@ -231,7 +232,8 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
 
       if ($i%5==0 && $i!=0) { 
         if ($options['tagboxtable']) $rv.="</tr>\n<tr>";
-        else $rv.="<br/>\n";
+        #else $rv.="<br/>\n";
+        else $rv.="  </div><div>\n";
       }
       $i++;
       if ($options['tagboxtable']) $rv.='<td>';
@@ -249,6 +251,7 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
        }
     }
     if ($options['tagboxtable']) $rv.='</tr></table>';
+    else $rv.='  </div>';
     $rv.=' </div>';
     $rv.='</div>';
     return ($rv);
