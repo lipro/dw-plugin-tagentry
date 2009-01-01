@@ -216,6 +216,7 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
   function _format_tags($alltags, $options) {
     $rv='';
     if (!is_array($alltags)) return $rv;
+    if (count($alltags)<1) return $rv;
 
     $rv.='<div class="'.$options['class'].'">';
     $rv.=' <div><label>Tags:</label></div>';
