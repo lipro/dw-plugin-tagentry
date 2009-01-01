@@ -31,19 +31,19 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
    * register the eventhandlers
    */
   function register(&$controller){
-      // old hook
-      $controller->register_hook('HTML_EDITFORM_INJECTION',
-                                 'BEFORE',
-                                 $this,
-                                 'handle_editform_output',
-                                 array('editform' => true, 'oldhook' => true));
+    // old hook
+    $controller->register_hook('HTML_EDITFORM_INJECTION',
+                               'BEFORE',
+                               $this,
+                               'handle_editform_output',
+                               array('editform' => true, 'oldhook' => true));
 
-      // new hook
-      $controller->register_hook('HTML_EDITFORM_OUTPUT',
-                                 'BEFORE',
-                                 $this,
-                                 'handle_editform_output',
-                                 array('editform' => true, 'oldhook' => false));
+    // new hook
+    $controller->register_hook('HTML_EDITFORM_OUTPUT',
+                               'BEFORE',
+                               $this,
+                               'handle_editform_output',
+                               array('editform' => true, 'oldhook' => false));
   }
 
   /**
@@ -70,13 +70,35 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
     } else {
       $alltags=$this->_getpages($tagns);
     }
+    $assigned = array();
+    if (1) { # those are from the prev. saved version.
+      global $ID;
+      $meta= array();
+      $meta = p_get_metadata($ID); 
+      $assigned = $meta['subject'];
+    } else { # TODO clean up .. 
+      $wikipage = '';
+      if(!$param['oldhook']){
+        $wt = $event->data->findElementByType('wikitext');
+        if ($wt!==false) {
+          $wikipage = $event->data->_content[$wt]['_text'];
+        }
+      } else { 
+        # TODO get current draft or latest.wiki-text
+      }
+      if (preg_match('@\{\{tag>(.*?)\}\}@',$wikipage, &$m)) {
+        $assigned = split(' ',$m[1]);
+        $out  = print_r($m,true);
+      }
+    }
 
-    $out  = '';
+    #$out  = '';
     $out .= '<div id="plugin__tagentry_wrapper">';
     $options=array(
       'tagboxtable' => $this->getConf('table'),
-    # 'limit' => intval($this->getConf('limit')),
-      'blacklist' => split(' ',$this->getConf('blacklist')),
+      'limit'       => intval($this->getConf('limit')),
+      'blacklist'   => split(' ',$this->getConf('blacklist')),
+      'assigned'    => $assigned,
       'class' => '',
     );
     $out .= $this->_format_tags($alltags,$options);
@@ -163,6 +185,12 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
         $o)))));
   }
 
+  function _in_casearray($needle, $haystack) {
+    foreach ($haystack as $t) {
+      if (strcasecmp($needle,$t)==0) return true;
+    }
+    return false;
+  }
   /** 
    * render and return the tag-select box.
    *
@@ -183,14 +211,21 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
     natcasesort($alltags);
     foreach ($alltags as $t)  {
       if (is_array($options['blacklist']) 
-          && in_array($t, $options['blacklist'])) continue;
+          && $this->_in_casearray($t, $options['blacklist'])) 
+        continue;
+
       if ($i%5==0 && $i!=0) { 
         if ($options['tagboxtable']) $rv.="</tr>\n<tr>";
         else $rv.="<br/>\n";
       }
       $i++;
       if ($options['tagboxtable']) $rv.='<td>';
-      $rv.='<input type="checkbox" id="plugin__tagentry_cb'.$t.'" value="1" name="'.$t.'" onclick="tagentry_clicktag(\''.$this->escapeJSstring($t).'\', this);" /> '.$this->clipstring($t).'&nbsp;';
+      $rv.='<input type="checkbox" id="plugin__tagentry_cb'.$t.'"';
+      $rv.=' value="1" name="'.$t.'"';
+      if ($this->_in_casearray($t,$options['assigned']))
+        $rv.=' checked="checked"';
+      $rv.=' onclick="tagentry_clicktag(\''.$this->escapeJSstring($t).'\', this);"';
+      $rv.=' /> '.$this->clipstring($t).'&nbsp;';
       $rv.="\n";
       if ($options['tagboxtable']) $rv.='</td>';
       if ($options['limit']>0 && $i>$options['limit']) { 
@@ -204,5 +239,4 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
     return ($rv);
   }
 }
-
 //Setup VIM: ex: et sw=2 ts=2 enc=utf-8 :
