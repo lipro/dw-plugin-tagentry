@@ -53,10 +53,11 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
     if(!$param['oldhook']){
       $pos = $event->data->findElementByAttribute('type','submit');
       if(!$pos) return; // no button -> source view mode
-    }elseif($param['editform'] && !$event->data['writable']){
-      if($param['editform'] && !$event->data['writable']) return;
+    }elseif(!$event->data['writable']){
+      return;
     }
-
+    
+    // get all tags
     $tagns=$this->getConf('namespace');
     if ($thlp=&plugin_load('helper', 'tag')) {
       if ($this->getConf('tagsrc') == 'Pagenames in tag NS') {
@@ -70,13 +71,10 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
     } else {
       $alltags=$this->_getpages($tagns);
     }
-    $assigned = array();
-    if (1) { # those are from the prev. saved version.
-      global $ID;
-      $meta= array();
-      $meta = p_get_metadata($ID); 
-      $assigned = $meta['subject'];
-    } else { # TODO clean up .. 
+
+    // get already assigned tags for this page
+    $assigned = false;
+    if(1) {  # parse wiki-text to pick up tags for draft/prevew
       $wikipage = '';
       if(!$param['oldhook']){
         $wt = $event->data->findElementByType('wikitext');
@@ -85,15 +83,21 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
         }
       } else { 
         # TODO get current draft or latest.wiki-text
+        # for /old/ DokuWiki's using HTML_EDITFORM_INJECTION
       }
-      if (preg_match('@\{\{tag>(.*?)\}\}@',$wikipage, &$m)) {
-        $assigned = split(' ',$m[1]);
-        $out  = print_r($m,true);
-      }
-    }
 
-    #$out  = '';
-    $out .= '<div id="plugin__tagentry_wrapper">';
+      if (!empty($wikipage))
+        if (preg_match('@\{\{tag>(.*?)\}\}@',$wikipage, &$m)) {
+          $assigned = split(' ',$m[1]);
+        }
+    }
+    if (!is_array($assigned)) { # those are from the prev. saved version.
+      global $ID;
+      $meta= array();
+      $meta = p_get_metadata($ID); 
+      $assigned = $meta['subject'];
+    } 
+
     $options=array(
       'tagboxtable' => $this->getConf('table'),
       'limit'       => intval($this->getConf('limit')),
@@ -101,6 +105,9 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
       'assigned'    => $assigned,
       'class' => '',
     );
+
+    $out  = '';
+    $out .= '<div id="plugin__tagentry_wrapper">';
     $out .= $this->_format_tags($alltags,$options);
     $out .= '</div>';
 
@@ -130,15 +137,12 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
     }
 
     $id = pathID($file);
-    // TODO: use a regexp ?!
     if (getNS($id) != $opts['ns']) return false;
 
-    //check hidden
     if(isHiddenPage($id)){
       return false;
     }
 
-    //check ACL
     if($type=='f' && auth_quickaclcheck($id) < AUTH_READ){
       return false;
     }
@@ -147,6 +151,13 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
     return $return;
   }
 
+  /**
+   * list all tags from the topic index.
+   * (requires newer version of the tag plugin)
+   *
+   * @param $thlp  pointer to tag plugin's helper 
+   * @return array list of tag names, sorted by frequency
+   */
   function _gettags(&$thlp) {
     $data = array();
     foreach ($thlp->topic_idx as $k => $v) {
@@ -185,12 +196,16 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
         $o)))));
   }
 
+  /** case insenstive in_array();.
+   */
   function _in_casearray($needle, $haystack) {
+    if (!is_array($haystack)) return false;
     foreach ($haystack as $t) {
       if (strcasecmp($needle,$t)==0) return true;
     }
     return false;
   }
+
   /** 
    * render and return the tag-select box.
    *
