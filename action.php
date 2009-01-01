@@ -32,6 +32,7 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
    */
   function register(&$controller){
     // old hook
+    if ($this->getConf('oldhook')===true) 
     $controller->register_hook('HTML_EDITFORM_INJECTION',
                                'BEFORE',
                                $this,
@@ -53,6 +54,10 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
     if(!$param['oldhook']){
       $pos = $event->data->findElementByAttribute('type','submit');
       if(!$pos) return; // no button -> source view mode
+      #echo "DEBUG: <pre>".print_r($event->data,true).'</pre>';
+      if (   !empty($event->data->_hidden['prefix'])
+          || !empty($event->data->_hidden['suffix'])) return;
+      if ($event->data->findElementByType('wikitext')===false) return;
     }elseif(!$event->data['writable']){
       return;
     }
