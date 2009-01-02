@@ -6,6 +6,6 @@ $conf['tagsrc']       = 'All tags'; // where to get the tags from
 $conf['namespace']    = 'tag';      // scan here for tags
 $conf['table']        = false;      // arrange tags in a table
 $conf['limit']        = 0;          // 0: unlimited
-$conf['blacklist']    = '';         // space separated list
+$conf['blacklist']    = 'start';    // space separated list
 
 //Setup VIM: ex: et ts=2 enc=utf-8 :
