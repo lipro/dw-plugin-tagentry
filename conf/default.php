@@ -7,5 +7,6 @@ $conf['namespace']    = 'tag';      // scan here for tags
 $conf['table']        = false;      // arrange tags in a table
 $conf['limit']        = 0;          // 0: unlimited
 $conf['blacklist']    = 'start';    // space separated list
+$conf['height']       = '';         // float(em|px|pt) ; <0: scale with entries, >0 fixed , 0 or empty: use CSS
 
 //Setup VIM: ex: et ts=2 enc=utf-8 :

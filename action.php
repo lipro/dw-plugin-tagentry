@@ -105,10 +105,12 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
 
     $options=array(
       'tagboxtable' => $this->getConf('table'),
+      'tablerowcnt' => 5,
       'limit'       => intval($this->getConf('limit')),
       'blacklist'   => split(' ',$this->getConf('blacklist')),
       'assigned'    => $assigned,
-      'class' => '',
+      'class'       => '',
+      'height'      => $this->getConf('height'),
     );
 
     $out  = '';
@@ -223,9 +225,30 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
     if (!is_array($alltags)) return $rv;
     if (count($alltags)<1) return $rv;
 
+    if ($options['tablerowcnt'] < 1 || $options['tablerowcnt]'] > 10)
+      $options['tablerowcnt']=5;
+
+    $ohi=floatval($options['height']);
+    $ohu='em';
+    if ($ohi!=0) {
+      if (preg_match('/[0-9\w]+(px|em|pt)\b/',$options['height'],&$m)) {
+        $ohu=$m[1];
+      }
+    }
+    if ($ohi<0) {
+      $t=count($alltags);
+      if ($options['limit']>0) $t=min($t,$options['limit']);
+      $dstyle=' style="max-height:'.ceil(1.0+$ohi*(-$t)).$ohu.';"';
+    }
+    elseif ($ohi>0) {
+      $dstyle=' style="max-height:'.$ohi.$ohu.';"';
+    }
+    else 
+      $dstyle='';
+
     $rv.='<div class="'.$options['class'].'">';
     $rv.=' <div><label>'.$this->getLang('assign').'</label></div>';
-    $rv.=' <div class="taglist">';
+    $rv.=' <div class="taglist"'.$dstyle.'>';
     if ($options['tagboxtable']) $rv.='<table><tr>';
     else $rv.='  <div>';
     $i=0;
@@ -235,9 +258,9 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
           && $this->_in_casearray($t, $options['blacklist'])) 
         continue;
 
-      if ($i%5==0 && $i!=0) { 
+      if ($i%5==$options['tablerowcnt'] && $i!=0) { 
         if ($options['tagboxtable']) $rv.="</tr>\n<tr>";
-        #else $rv.="<br/>\n";
+        ##else $rv.="<br/>\n";
         #else $rv.="  </div><div>\n";
       }
       $i++;
