@@ -72,7 +72,7 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
     }
 
     if ($this->getConf('tagsrc') == 'All tags' && $thlp) {
-      $alltags=$this->_gettags(&$thlp);
+      $alltags=$this->_gettags($thlp);
     } else {
       $alltags=$this->_getpages($tagns);
     }
@@ -92,7 +92,7 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
       }
 
       if (!empty($wikipage))
-        if (preg_match('@\{\{tag>(.*?)\}\}@',$wikipage, &$m)) {
+        if (preg_match('@\{\{tag>(.*?)\}\}@',$wikipage, $m)) {
           $assigned = split(' ',$m[1]);
         }
     }
@@ -231,7 +231,7 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
     $ohi=floatval($options['height']);
     $ohu='em';
     if ($ohi!=0) {
-      if (preg_match('/[0-9\w]+(px|em|pt)\b/',$options['height'],&$m)) {
+      if (preg_match('/[0-9\w]+(px|em|pt)\b/',$options['height'],$m)) {
         $ohu=$m[1];
       }
     }
