@@ -167,6 +167,7 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
    */
   function _gettags(&$thlp) {
     $data = array();
+    if (!is_array($thlp->topic_idx)) return $data;
     foreach ($thlp->topic_idx as $k => $v) {
         if (!is_array($v) || empty($v) || (!trim($v[0]))) continue;
         $data[$k] = count($v);
