@@ -266,12 +266,12 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
       }
       $i++;
       if ($options['tagboxtable']) $rv.='<td>';
-      $rv.='<input type="checkbox" id="plugin__tagentry_cb'.$t.'"';
+      $rv.='<label><input type="checkbox" id="plugin__tagentry_cb'.$t.'"';
       $rv.=' value="1" name="'.$t.'"';
       if ($this->_in_casearray($t,$options['assigned']))
         $rv.=' checked="checked"';
       $rv.=' onclick="tagentry_clicktag(\''.$this->escapeJSstring($t).'\', this);"';
-      $rv.=' /> '.$this->clipstring($t).'&nbsp;';
+      $rv.=' /> '.$this->clipstring($t).'</label>&nbsp;';
       $rv.="\n";
       if ($options['tagboxtable']) $rv.='</td>';
       if ($options['limit']>0 && $i>$options['limit']) { 
