@@ -259,7 +259,7 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
           && $this->_in_casearray($t, $options['blacklist'])) 
         continue;
 
-      if ($i%5==$options['tablerowcnt'] && $i!=0) { 
+      if (($i%$options['tablerowcnt'])==0 && $i!=0) { 
         if ($options['tagboxtable']) $rv.="</tr>\n<tr>";
         ##else $rv.="<br/>\n";
         #else $rv.="  </div><div>\n";
