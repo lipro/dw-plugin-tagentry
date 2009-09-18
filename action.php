@@ -20,7 +20,7 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
     return array(
       'author' => 'Robin Gareus',
       'email'  => 'robin@gareus.org',
-      'date'   => '2009-01-30',
+      'date'   => '2009-09-18',
       'name'   => 'tagentry Plugin',
       'desc'   => 'adds a tag-selection table below the entry form.',
       'url'    => 'http://mir.dnsalias.com/wiki/tagentry',
