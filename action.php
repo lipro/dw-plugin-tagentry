@@ -105,7 +105,7 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
 
     $options=array(
       'tagboxtable' => $this->getConf('table'),
-      'tablerowcnt' => 5,
+      'tablerowcnt' => intval($this->getConf('tablerowcnt')),
       'limit'       => intval($this->getConf('limit')),
       'blacklist'   => split(' ',$this->getConf('blacklist')),
       'assigned'    => $assigned,

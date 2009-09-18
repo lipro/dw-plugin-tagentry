@@ -11,5 +11,6 @@ $meta['table']        = array('onoff');
 $meta['limit']        = array('numeric');
 $meta['blacklist']    = array('string');
 $meta['height']       = array('string');
+$meta['tablerowcnt']  = array('numeric');
 
 //Setup VIM: ex: et ts=2 enc=utf-8 :
