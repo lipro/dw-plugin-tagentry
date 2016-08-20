@@ -72,7 +72,7 @@ class action_plugin_tagentry extends DokuWiki_Action_Plugin {
     }
 
     if ($this->getConf('tagsrc') == 'All tags' && $thlp) {
-      $alltags=$this->_gettags($thlp);
+      $alltags=array_map('trim', idx_getIndex('subject', '_w'));
     } else {
       $alltags=$this->_getpages($tagns);
     }
